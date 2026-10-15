@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creatief DNA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFFFFF; --ink:#000000; --muted:rgba(0,0,0,.58); --line:rgba(0,0,0,.16);
+  --accent:#6AAFFF; --paper:#FFFFFF; --on-accent:#000000;
+  --display:"Archivo", "Arial Narrow", sans-serif;
+  --serif:"Instrument Serif", Georgia, serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--display);font-variation-settings:"wdth" 100;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.screen{display:none;min-height:100vh;min-height:100dvh}
+.screen.on{display:flex;flex-direction:column}
+
+/* ---------- top bar ---------- */
+.bar{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:1.1rem clamp(1rem,3vw,2.2rem);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.bar .muted{color:var(--muted)}
+.progress{height:3px;background:var(--line);margin:0 clamp(1rem,3vw,2.2rem)}
+.progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .35s ease}
+
+/* ---------- intro ---------- */
+#intro{padding:0 clamp(1rem,3vw,2.2rem) 2rem}
+#intro .hero{flex:1;display:flex;flex-direction:column;justify-content:center;max-width:1100px;padding:3rem 0}
+.kicker{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--accent);margin-bottom:1.2rem}
+h1{font-size:clamp(3.4rem,13vw,11rem);line-height:.86;font-weight:900;font-variation-settings:"wdth" 62;text-transform:uppercase;letter-spacing:-.01em}
+h1 em{font-family:var(--serif);font-style:italic;font-weight:400;text-transform:none;font-variation-settings:normal;letter-spacing:0}
+.lead{font-size:clamp(1.05rem,1.6vw,1.3rem);line-height:1.45;max-width:38em;margin-top:2rem}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:2.4rem;max-width:900px}
+.rules div{background:var(--bg);padding:1rem 1.1rem;font-size:.95rem;line-height:1.4}
+.rules b{display:block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem}
+.start{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:2.4rem;align-items:stretch}
+.start input{font:inherit;font-size:1.1rem;padding:.95rem 1.1rem;border:1.5px solid var(--ink);background:var(--paper);min-width:min(320px,100%);outline:none}
+.start input:focus{border-color:var(--accent)}
+.btn{font-weight:800;font-size:1rem;letter-spacing:.06em;text-transform:uppercase;padding:1rem 1.6rem;background:var(--ink);color:var(--bg);transition:background .15s}
+.btn:hover{background:var(--accent);color:var(--on-accent)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+.btn.ghost:hover{background:var(--ink);color:var(--bg)}
+
+/* ---------- quiz ---------- */
+#quiz .domain{padding:1.4rem clamp(1rem,3vw,2.2rem) .8rem;font-family:var(--serif);font-style:italic;font-size:clamp(1.2rem,2vw,1.6rem)}
+.duel{flex:1;display:grid;grid-template-columns:1fr 1fr;position:relative;margin:0 clamp(1rem,3vw,2.2rem);border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}
+.choice{display:flex;flex-direction:column;justify-content:space-between;text-align:left;padding:clamp(1.2rem,3vw,2.6rem);min-height:clamp(260px,52vh,560px);transition:background .18s,color .18s;position:relative;outline:none}
+.choice + .choice{border-left:1.5px solid var(--ink)}
+.choice:hover,.choice:focus-visible{background:var(--ink);color:var(--bg)}
+.choice:hover .desc,.choice:focus-visible .desc{color:var(--bg)}
+.choice.picked{background:var(--accent)!important;color:var(--on-accent)!important}
+.choice.picked .desc{color:var(--on-accent)!important}
+.choice .key{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;opacity:.55}
+.choice .name{font-size:clamp(2.2rem,6.4vw,6rem);line-height:.9;font-weight:900;font-variation-settings:"wdth" 62;text-transform:uppercase;letter-spacing:-.005em;margin:1.4rem 0;hyphens:none;-webkit-hyphens:none;overflow-wrap:normal;word-break:keep-all;white-space:normal;max-width:100%}
+.choice .desc{font-family:var(--serif);font-size:clamp(1.15rem,1.9vw,1.6rem);line-height:1.2;color:var(--muted);max-width:22em;transition:color .18s}
+/* beelden: altijd staand, 3:4 (600×800 px) */
+.choice .img{display:none;aspect-ratio:3/4;height:min(42vh,460px);width:auto;max-width:100%;align-self:flex-start;margin-top:1rem;overflow:hidden;flex-shrink:0;background:var(--line)}
+.choice .img img{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+.choice.has-img .img{display:block}
+.choice.has-img .name{font-size:clamp(1.8rem,4.4vw,4rem);margin:1rem 0 .5rem}
+.choice.has-img{justify-content:flex-start}
+.choice.has-img .desc{margin-top:auto}
+.w{white-space:nowrap;hyphens:none;-webkit-hyphens:none}
+.name,.arch,h1{hyphens:none;-webkit-hyphens:none;overflow-wrap:normal;word-break:keep-all}
+.or{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:3.4rem;height:3.4rem;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-family:var(--serif);font-style:italic;font-size:1.5rem;pointer-events:none;z-index:2}
+.question{padding:.9rem clamp(1rem,3vw,2.2rem) 0;font-size:.95rem;color:var(--muted);min-height:2.2rem}
+.foot{display:flex;justify-content:space-between;align-items:center;padding:1rem clamp(1rem,3vw,2.2rem) 1.4rem;font-size:.8rem;color:var(--muted)}
+.foot button{font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.8rem;color:var(--ink)}
+.foot button:disabled{opacity:.25;cursor:default}
+
+/* ---------- result ---------- */
+#result{padding:0 clamp(1rem,3vw,2.2rem) 3rem}
+.card{background:var(--paper);border:1.5px solid var(--ink);max-width:1100px;width:100%;margin:1.5rem auto 0}
+.card-head{display:flex;justify-content:space-between;gap:1rem;padding:1rem 1.4rem;border-bottom:1.5px solid var(--ink);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.card-body{padding:clamp(1.4rem,4vw,3rem)}
+.arch{font-size:clamp(3rem,10vw,8.5rem);line-height:.86;font-weight:900;font-variation-settings:"wdth" 62;text-transform:uppercase}
+.arch-sub{font-family:var(--serif);font-style:italic;font-size:clamp(1.3rem,2.4vw,2rem);margin-top:.8rem}
+.arch-sub b{font-style:normal;font-family:var(--display);font-weight:800;font-variation-settings:"wdth" 75;text-transform:uppercase;font-size:.8em;letter-spacing:.02em}
+.arch-text{font-size:1.08rem;line-height:1.55;max-width:40em;margin-top:1.6rem}
+.dna{display:flex;align-items:flex-end;gap:2px;height:70px;margin:2.2rem 0 .5rem}
+.dna i{flex:1;background:var(--ink);min-height:6px}
+.dna i.b{background:var(--accent)}
+.dna-cap{font-size:.75rem;color:var(--muted);letter-spacing:.04em}
+.sec{margin-top:2.6rem}
+.sec h3{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-bottom:1.5px solid var(--ink);padding-bottom:.5rem;margin-bottom:1rem}
+.axis{display:grid;grid-template-columns:7.5rem 1fr 7.5rem;gap:1rem;align-items:center;padding:.65rem 0;border-bottom:1px solid var(--line)}
+.axis span{font-weight:700;font-size:.92rem}
+.axis span:last-child{text-align:right}
+.track{position:relative;height:14px;background:repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 10%)}
+.track:before{content:"";position:absolute;left:50%;top:-4px;bottom:-4px;width:1.5px;background:var(--ink)}
+.track i{position:absolute;top:0;bottom:0;background:var(--accent)}
+.track b{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:var(--ink);transform:translate(-50%,-50%);border:3px solid var(--bg)}
+.axis small{grid-column:2;font-family:var(--serif);font-style:italic;font-size:1.02rem;color:var(--muted);margin-top:-.2rem}
+.kin{font-family:var(--serif);font-size:1.35rem;line-height:1.35}
+.picks{columns:2 260px;column-gap:2rem}
+.picks div{break-inside:avoid;margin-bottom:1.1rem}
+.picks h4{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+.picks p{font-size:.98rem;line-height:1.5}
+.reflect{display:grid;gap:.8rem}
+.reflect p{font-family:var(--serif);font-size:1.25rem;line-height:1.3;padding-left:1.4rem;position:relative}
+.reflect p:before{content:"→";position:absolute;left:0;font-family:var(--display);color:var(--accent);font-weight:700}
+.actions{display:flex;flex-wrap:wrap;gap:.8rem;max-width:1100px;margin:1.4rem auto 0;width:100%}
+
+/* ---------- mobile ---------- */
+@media (max-width:720px){
+  .duel{grid-template-columns:1fr}
+  .choice{min-height:34vh}
+  .choice + .choice{border-left:0;border-top:1.5px solid var(--ink)}
+  .choice .key{display:none}
+  .choice .img{height:28vh}
+  .axis{grid-template-columns:5.5rem 1fr 5.5rem;gap:.6rem}
+  .axis span{font-size:.8rem}
+}
+
+/* ---------- print: DNA-kaart op A4 ---------- */
+@media print{
+  @page{size:A4;margin:12mm}
+  body{background:var(--bg)}
+  .bar,.progress,.actions,#intro,#quiz{display:none!important}
+  #result{padding:0}
+  .card{margin:0;border-width:1px}
+  .arch{font-size:64pt}
+  .sec{break-inside:avoid}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<section id="intro" class="screen on">
+  <div class="bar"><span>Wie ben ik als vormgever?</span><span class="muted">Creatief DNA</span></div>
+  <div class="hero">
+    <div class="kicker">45 duels · ± 9 minuten</div>
+    <h1>Wat is jouw <em>creatief</em> DNA?</h1>
+    <p class="lead">Je krijgt telkens twee makers, merken of studio's. Kies wie het dichtst bij jou staat — niet wie je het "beste" vindt, maar bij wie je je thuis voelt. Ken je een naam niet? Onder elke keuze staat kort waar ze voor staan.</p>
+    <div class="rules">
+      <div><b>Snel</b>Volg je buikgevoel. Twijfelen mag, lang nadenken niet.</div>
+      <div><b>Geen juist antwoord</b>Elke keuze zegt iets. Er is geen beter of slechter profiel.</div>
+      <div><b>Toetsen</b>← of A voor links, → of L voor rechts. Backspace om terug te gaan.</div>
+    </div>
+    <form class="start" id="startForm">
+      <input id="studentName" placeholder="Je naam" autocomplete="off" aria-label="Je naam">
+      <button class="btn" type="submit">Start →</button>
+    </form>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz" class="screen">
+  <div class="bar"><span>Wie ben ik als vormgever?</span><span id="counter" class="muted">1 / 45</span></div>
+  <div class="progress"><i id="prog"></i></div>
+  <div class="domain" id="domain"></div>
+  <div class="duel">
+    <button class="choice" id="optA" data-side="0">
+      <span class="key">← A</span>
+      <span class="img"><img alt=""></span>
+      <span class="name"></span>
+      <span class="desc"></span>
+    </button>
+    <button class="choice" id="optB" data-side="1">
+      <span class="key">L →</span>
+      <span class="img"><img alt=""></span>
+      <span class="name"></span>
+      <span class="desc"></span>
+    </button>
+    <div class="or">of</div>
+  </div>
+  <div class="question" id="question"></div>
+  <div class="foot">
+    <button id="backBtn" disabled>← Vorige</button>
+    <span>Kies wie het dichtst bij jou staat</span>
+  </div>
+</section>
+
+<!-- RESULT -->
+<section id="result" class="screen">
+  <div class="bar"><span>Wie ben ik als vormgever?</span><span class="muted">Resultaat</span></div>
+  <article class="card" id="card">
+    <div class="card-head"><span id="rName">Creatief DNA</span><span id="rDate"></span></div>
+    <div class="card-body">
+      <div class="kicker">Jouw creatief DNA</div>
+      <div class="arch" id="rArch">Creatief DNA</div>
+
+      <div class="dna" id="rDna"></div>
+      <div class="dna-cap">Jouw streepjescode: elk streepje is één keuze — wit = linkerkeuze, blauw = rechterkeuze, hoogte = hoe uitgesproken die keuze was.</div>
+
+      <div class="sec">
+        <h3>Jouw spectrum</h3>
+        <div id="rAxes"></div>
+      </div>
+
+    </div>
+  </article>
+  <div class="actions">
+    <button class="btn" id="printBtn">Bewaar als PDF / print</button>
+    <button class="btn ghost" id="restartBtn">Opnieuw</button>
+  </div>
+</section>
+
+<script>
+/* Assen: negatief = linkerpool, positief = rechterpool
+   [0] Systeem ↔ Intuïtie
+   [1] Ingetogen ↔ Uitgesproken
+   [2] Voor iedereen ↔ Voor kenners
+   [3] Serieus ↔ Speels
+   [4] Vorm ↔ Statement                                    */
+const AXES = [
+  {l:"Systeem",       r:"Intuïtie"},
+  {l:"Ingetogen",     r:"Uitgesproken"},
+  {l:"Voor iedereen", r:"Niche"},
+  {l:"Serieus",       r:"Speels"},
+  {l:"Vorm",          r:"Statement"}
+];
+
+const DOMAINS = [
+ {name:"Grafisch ontwerp", items:[
+  [["David Carson","Chaos, intuïtie en experiment",[1,1,.5,.5,0]],
+   ["Josef Müller-Brockmann","Grid, structuur en rationaliteit",[-1,-1,0,-.5,0]]],
+  [["Stefan Sagmeister","Persoonlijke expressie en provocatie",[.5,1,.5,.5,.5]],
+   ["Michael Bierut","Helderheid en communicatie",[-.5,-.5,-1,0,0]]],
+  [["Paula Scher","Expressieve, luide typografie",[.5,1,0,.5,0]],
+   ["Wim Crouwel","Systematische, gerasterde typografie",[-1,-.5,.5,-.5,0]]],
+  [["Neville Brody","Visuele rebellie",[1,1,0,0,.5]],
+   ["Massimo Vignelli","Modernistische discipline",[-1,-.5,.5,-1,0]]],
+  [["Experimental Jetset","Conceptuele strengheid",[-1,-.5,1,-.5,.5]],
+   ["Studio Dumbar","Expressieve dynamiek en beweging",[.5,1,0,.5,0]]],
+  [["Feixen","Speels, experimenteel en systematisch",[0,.5,0,1,0]],
+   ["Paula Scher","Expressief, typografisch en monumentaal",[.5,1,.5,-.5,0]]],
+  [["Noma Bar","Intelligent reduceren tot één slim beeld",[-.5,-1,0,.5,0]],
+   ["James Victore","Ongefilterd, rauw communiceren",[1,1,0,0,1]]],
+  [["Karel Martens","Grafisch experiment, systemen en abstractie",[-.5,-.5,1,-.5,-.5]],
+   ["Parra","Speelse illustratie, popcultuur en herkenbare beeldtaal",[.5,1,-1,1,0]]]
+ ]},
+ {name:"Kunst & architectuur", items:[
+  [["Banksy","Anonieme maatschappijkritiek",[.5,.5,-1,0,1]],
+   ["Jeff Koons","Celebrity, commercie en spektakel",[0,1,1,.5,-1]]],
+  [["Andy Warhol","Reproductie en popcultuur",[-.5,.5,-1,.5,-.5]],
+   ["Jean-Michel Basquiat","Rauwe, persoonlijke expressie",[1,1,.5,-.5,.5]]],
+  [["Barbara Kruger","Kritische slogans in rood en zwart",[-.5,1,0,-1,1]],
+   ["Takashi Murakami","Kleurrijke popesthetiek",[.5,1,-.5,1,-1]]],
+  [["Zaha Hadid","Dynamische, futuristische vormen",[.5,1,1,0,-.5]],
+   ["Tadao Ando","Stilte, eenvoud en contemplatie",[-.5,-1,.5,-1,0]]],
+  [["Olafur Eliasson","Ervaringen creëren met licht en natuur",[.5,-.5,-.5,.5,.5]],
+   ["Damien Hirst","Provoceren en choqueren",[0,1,1,-.5,-.5]]],
+  [["Salvador Dalí","Surrealisme, verbeelding en vervreemding",[1,.5,.5,1,0]],
+   ["Peter Paul Rubens","Barok, virtuositeit en dramatiek",[-.5,1,.5,-1,0]]],
+  [["Anish Kapoor","Abstracte vorm, leegte en spiegeling",[0,-.5,1,-.5,-1]],
+   ["Ron Mueck","Hyperrealistische mensfiguren",[0,.5,-1,.5,.5]]],
+  [["Erwin Olaf","Verstilde, perfect geënsceneerde melancholie",[-1,-1,.5,-1,0]],
+   ["David LaChapelle","Overdadige, kitscherige popfantasie",[1,1,-.5,1,0]]],
+  [["Claude Monet","Licht, sfeer en observatie",[0,-1,-.5,0,-.5]],
+   ["Jackson Pollock","Spontaniteit, beweging en fysieke expressie",[1,1,.5,0,0]]],
+  [["Mark Rothko","Grote kleurvlakken en contemplatie",[-.5,-1,1,-1,0]],
+   ["Yayoi Kusama","Obsessieve patronen en immersieve werelden",[1,1,0,1,0]]]
+ ]},
+ {name:"Design & objecten", items:[
+  [["Alessi","Speels, kleurrijk designobject",[.5,1,0,1,0]],
+   ["Dieter Rams","Functionele reductie: minder, maar beter",[-1,-1,0,-1,0]]],
+  [["Steve Jobs","Intuïtieve producten die gewoon werken",[-1,-1,0,-.5,0]],
+   ["Philippe Starck","Objecten met persoonlijkheid",[1,1,.5,1,0]]],
+  [["IKEA","Design democratiseren: praktisch en betaalbaar",[-.5,-.5,-1,0,.5]],
+   ["Vitra","Iconisch design: klassiekers, exclusiviteit en erfgoed",[0,0,1,-.5,-.5]]]
+ ]},
+ {name:"Film, muziek & mode", items:[
+  [["David Lynch","Droomlogica en mysterie",[1,0,1,0,0]],
+   ["Christopher Nolan","Complexe, geconstrueerde verhalen",[-1,.5,-.5,-.5,0]]],
+  [["Rei Kawakubo","Conceptueel en anti-conventioneel",[1,.5,1,0,.5]],
+   ["Tom Ford","Glamour en verleiding",[-.5,.5,.5,-.5,-1]]],
+  [["Daft Punk","Toegankelijke futuristische pop",[-.5,.5,-1,1,0]],
+   ["Aphex Twin","Compromisloos elektronisch experiment",[1,.5,1,0,0]]],
+  [["Björk","Een eigenzinnige artistieke wereld",[1,.5,1,.5,0]],
+   ["Dua Lipa","Gestroomlijnde popesthetiek",[-1,.5,-1,.5,-.5]]],
+  [["Tyler, The Creator","Speelse worldbuilding en zelfexpressie",[1,1,0,1,-.5]],
+   ["Kendrick Lamar","Verhaal en maatschappelijke reflectie",[0,0,0,-1,1]]],
+  [["De Jeugd Van Tegenwoordig","Fun en gekkigheid",[.5,1,-.5,1,0]],
+   ["Brihang","Poëtische kleinkunst",[0,-.5,.5,-.5,.5]]],
+  [["Billie Eilish","Alternatief, introspectief en onconventioneel",[.5,-1,.5,-.5,0]],
+   ["Taylor Swift","Toegankelijk, verhalend en mainstream",[-.5,.5,-1,.5,0]]],
+  [["Pharrell Williams","Speels, optimistisch en multidisciplinair",[.5,.5,-.5,1,0]],
+   ["Kanye West","Provocerend, ambitieus en grensverleggend",[.5,1,.5,-.5,.5]]],
+  [["Virgil Abloh","Streetwear, remix en conventies doorbreken",[1,.5,-.5,.5,.5]],
+   ["Karl Lagerfeld","Couture, elegantie en mode-erfgoed",[-.5,0,1,-.5,-1]]],
+  [["Ann Demeulemeester","Poëtisch, donker en ingetogen",[0,-1,.5,-1,-.5]],
+   ["Walter Van Beirendonck","Kleurrijk, maximalistisch en met een boodschap",[.5,1,-.5,1,1]]],
+  [["The xx","Minimalistisch, ingetogen en atmosferisch",[0,-1,.5,-.5,0]],
+   ["Oasis","Uitgesproken, direct en rebels",[.5,1,-.5,0,0]]]
+ ]},
+ {name:"Merken", items:[
+  [["Colruyt","Functioneel, no-nonsense en prijsbewust",[-1,-.5,-1,0,0]],
+   ["CRU","Verfijnd, authentiek en premium",[0,0,1,0,-.5]]],
+  [["Kia","Toegankelijk, vooruitstrevend en democratisch",[0,0,-1,.5,0]],
+   ["Audi","Prestige, verfijning en technologische perfectie",[-1,0,1,-.5,0]]],
+  [["Zara","Trendgericht, internationaal en commercieel",[-.5,0,-1,0,-1]],
+   ["Suspicious Antwerp","Streetwear, community en jongerencultuur",[.5,.5,.5,.5,.5]]],
+  [["Rolex","Prestige, traditie en tijdloze luxe",[-1,-.5,1,-1,-.5]],
+   ["Swatch","Speelsheid, kleur en toegankelijkheid",[.5,1,-1,1,0]]],
+  [["Nike","Ambitie, performance en heroïek",[0,1,0,-.5,.5]],
+   ["New Balance","Authenticiteit, understatement en lifestyle",[0,-1,0,0,-.5]]],
+  [["Patagonia","Activisme, duurzaamheid en verantwoordelijkheid",[0,0,0,-.5,1]],
+   ["The North Face","Avontuur, performance en streetwear",[0,.5,0,.5,-.5]]],
+  [["Aesop","Ingetogen, intellectueel en verfijnd",[-.5,-1,1,-.5,0]],
+   ["Lush","Kleurrijk, uitgesproken en activistisch",[.5,1,-1,1,1]]],
+  [["Muji","Rust, eenvoud en functionaliteit",[-1,-1,-.5,-.5,0]],
+   ["Flying Tiger","Speelsheid, verrassing en overvloed",[1,1,-1,1,0]]],
+  [["LEGO","Creativiteit, experiment en zelf bouwen",[.5,0,.5,0,0]],
+   ["Playmobil","Verhalen, rollenspel en herkenbare werelden",[-.5,0,-.5,.5,0]]],
+  [["Oatly","Brutale humor, uitgesproken typografie en activisme",[.5,1,0,1,1]],
+   ["Alpro","Toegankelijkheid, gezondheid en vertrouwen",[-.5,-1,-1,-.5,-.5]]],
+  [["Tony's Chocolonely","Kleurrijk, activistisch en speels",[0,1,-.5,1,1]],
+   ["Neuhaus","Elegant, traditioneel en luxueus",[-.5,-1,1,-1,-.5]]],
+  [["Ryanair","Radicale prijsfocus, directheid en efficiëntie",[-1,1,-1,.5,0]],
+   ["Singapore Airlines","Service, elegantie en premiumbeleving",[0,-1,1,-1,0]]],
+  [["Supreme","Hype, exclusiviteit en subcultuur",[1,1,1,0,0]],
+   ["Uniqlo","Functionaliteit, eenvoud en design voor iedereen",[-1,-1,-1,0,0]]]
+ ]}
+];
+
+
+/* flatten */
+const Q = [];
+DOMAINS.forEach(d => d.items.forEach(p => Q.push({domain:d.name, a:p[0], b:p[1]})));
+
+let answers = [];   // 0 = A, 1 = B
+let idx = 0;
+let locked = false;
+let student = "";
+
+const $ = id => document.getElementById(id);
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on", s.id===id)); window.scrollTo(0,0);}
+
+function render(){
+  const q = Q[idx];
+  $("domain").textContent = q.domain;
+  $("counter").textContent = (idx+1) + " / " + Q.length;
+  $("prog").style.width = (idx/Q.length*100) + "%";
+  [["optA",q.a],["optB",q.b]].forEach(([id,o])=>{
+    const el = $(id);
+    el.classList.remove("picked");
+    el.querySelector(".name").innerHTML = noSplit(o[0]);
+    el.querySelector(".desc").textContent = o[1];
+    el.setAttribute("aria-label", o[0] + ": " + o[1]);
+    loadImg(el, o[0]);
+  });
+  fitNames();
+  $("backBtn").disabled = idx === 0;
+  $("question").textContent = "";
+}
+
+/* Beelden: zet ze in een map "beelden" naast dit bestand.
+   Bestandsnaam = naam in kleine letters, zonder accenten, spaties → streepjes.
+   Bv. "David Carson" → beelden/david-carson.jpg  (ook .png of .webp mag).
+   Ontbreekt een beeld, dan toont de kaart gewoon de typografische versie. */
+const IMG_DIR = "beelden/";
+const IMG_EXT = ["jpg","png","webp","jpeg"];
+function slug(n){return n.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");}
+function loadImg(el, name){
+  const img = el.querySelector(".img img");
+  el.classList.remove("has-img");
+  img.removeAttribute("src");
+  const base = IMG_DIR + slug(name) + ".";
+  let i = 0;
+  const token = name;
+  img.dataset.for = token;
+  img.onload = ()=>{ if(img.dataset.for===token) el.classList.add("has-img"); };
+  img.onerror = ()=>{ if(img.dataset.for!==token) return; i++; if(i<IMG_EXT.length) img.src = base + IMG_EXT[i]; };
+  img.src = base + IMG_EXT[0];
+}
+
+function esc(t){return t.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+/* elk woord als ondeelbaar blok: de browser kan nooit midden in een woord afbreken */
+function noSplit(t){return t.split(/\s+/).map(w=>'<span class="w">'+esc(w)+'</span>').join(" ");}
+function fitEl(n){
+  n.style.fontSize="";
+  let size=parseFloat(getComputedStyle(n).fontSize), guard=0;
+  while(n.scrollWidth>n.clientWidth+1 && size>14 && guard++<60){ size*=0.94; n.style.fontSize=size+"px"; }
+}
+function fitNames(){
+  document.querySelectorAll(".choice .name").forEach(n=>{
+    n.style.fontSize="";
+    let size=parseFloat(getComputedStyle(n).fontSize), guard=0;
+    while(n.scrollWidth>n.clientWidth+1 && size>14 && guard++<60){
+      size*=0.94; n.style.fontSize=size+"px";
+    }
+  });
+}
+let fitT; window.addEventListener("resize",()=>{clearTimeout(fitT);fitT=setTimeout(()=>{if($("quiz").classList.contains("on"))fitNames();},120);});
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{if($("quiz").classList.contains("on"))fitNames();});
+
+function pick(side){
+  if(locked) return;
+  locked = true;
+  (side===0 ? $("optA") : $("optB")).classList.add("picked");
+  answers[idx] = side;
+  setTimeout(()=>{
+    locked = false;
+    idx++;
+    if(idx >= Q.length){ finish(); } else { render(); }
+  }, 260);
+}
+
+function back(){
+  if(idx===0 || locked) return;
+  idx--; answers.length = idx; render();
+}
+
+/* Score per as: enkel het VERSCHIL tussen de twee keuzes telt.
+   Duels waarin beide kanten even ver op een as staan, tellen op die as niet mee.
+   Ruwe score: -1 (altijd linkerpool) … +1 (altijd rechterpool).
+   Daarna opgerekt (macht 0,6) zodat een duidelijke voorkeur ook duidelijk zichtbaar wordt. */
+const STRETCH = 0.6;
+function computeProfile(){
+  const sum=[0,0,0,0,0], norm=[0,0,0,0,0];
+  Q.forEach((q,i)=>{
+    const ch=answers[i]===0?q.a[2]:q.b[2], ot=answers[i]===0?q.b[2]:q.a[2];
+    for(let k=0;k<5;k++){ sum[k]+=ch[k]-ot[k]; norm[k]+=Math.abs(ch[k]-ot[k]); }
+  });
+  return sum.map((s,k)=>{ if(!norm[k]) return 0; const r=s/norm[k]; return Math.sign(r)*Math.pow(Math.abs(r),STRETCH); });
+}
+
+function axisLabel(v,ax){
+  const a=Math.abs(v);
+  if(a<.15) return "Perfect in balans tussen "+ax.l.toLowerCase()+" en "+ax.r.toLowerCase();
+  const pole = v<0 ? ax.l : ax.r;
+  if(a<.35) return "Neigt licht naar "+pole.toLowerCase();
+  if(a<.6)  return "Duidelijk richting "+pole.toLowerCase();
+  return "Uitgesproken "+pole.toLowerCase();
+}
+
+function finish(){
+  $("prog").style.width="100%";
+  const p = computeProfile();
+
+  $("rName").textContent = student ? student : "Creatief DNA";
+  $("rDate").textContent = new Date().toLocaleDateString("nl-BE",{day:"numeric",month:"long",year:"numeric"});
+  $("rArch").innerHTML = noSplit(student ? student : "Creatief DNA"); fitEl($("rArch"));
+
+  // streepjescode
+  const dna=$("rDna"); dna.innerHTML="";
+  Q.forEach((q,i)=>{
+    const ch = answers[i]===0 ? q.a[2] : q.b[2];
+    const mag = ch.reduce((t,v)=>t+Math.abs(v),0);
+    const bar=document.createElement("i");
+    bar.style.height = (15 + Math.min(mag,4)/4*85) + "%";
+    if(answers[i]===1) bar.className="b";
+    dna.appendChild(bar);
+  });
+
+  // assen
+  $("rAxes").innerHTML = AXES.map((ax,k)=>{
+    const v=Math.max(-1,Math.min(1,p[k]));
+    const pos=(v+1)/2*100;
+    const left=Math.min(50,pos), w=Math.abs(pos-50);
+    return '<div class="axis"><span>'+ax.l+'</span><div class="track"><i style="left:'+left+'%;width:'+w+'%"></i><b style="left:'+pos+'%"></b></div><span>'+ax.r+'</span><small>'+axisLabel(v,ax)+'</small></div>';
+  }).join("");
+
+
+  show("result");
+}
+
+/* events */
+$("startForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  student = $("studentName").value.trim();
+  idx=0; answers=[]; show("quiz"); render();
+});
+$("optA").addEventListener("click",()=>pick(0));
+$("optB").addEventListener("click",()=>pick(1));
+$("backBtn").addEventListener("click",back);
+$("printBtn").addEventListener("click",()=>window.print());
+$("restartBtn").addEventListener("click",()=>{answers=[];idx=0;show("intro");});
+document.addEventListener("keydown",e=>{
+  if(!$("quiz").classList.contains("on")) return;
+  const k=e.key.toLowerCase();
+  if(k==="arrowleft"||k==="a"){e.preventDefault();pick(0);}
+  else if(k==="arrowright"||k==="l"){e.preventDefault();pick(1);}
+  else if(k==="backspace"){e.preventDefault();back();}
+});
+</script>
+</body>
+</html>
